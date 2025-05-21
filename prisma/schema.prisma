@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  birthDate DateTime
+  zodiacSign String
+  predictions UserPrediction[]
+}
+
+model Prophecy {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  title       String
+  description String
+  source      String   // e.g., "Nostradamus", "Baba Vanga"
+  year        Int
+  isVerified  Boolean  @default(false)
+  status      String   // "Pending", "Verified", "Debunked"
+  category    String   // e.g., "World Events", "Natural Disasters", "Technology"
+  predictions UserPrediction[]
+}
+
+model UserPrediction {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  prophecyId  String?
+  type        String   // "Personal", "Monthly", "Quarterly", "Yearly"
+  content     String
+  intensity   Int      // 1-10 scale for "fate intensity"
+  alignment   Int      // 1-10 scale for "cosmic alignment"
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prophecy    Prophecy? @relation(fields: [prophecyId], references: [id])
+}
